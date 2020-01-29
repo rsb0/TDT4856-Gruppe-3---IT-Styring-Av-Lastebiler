@@ -20,7 +20,7 @@ python -m pip install Flask
 python -m pip install azure-cosmosdb-table
 python -m pip install uuid
 ```
-### Running the application
+### Running the application locally
 In order to get access to the database you need to an acces key (ask someone in the team for this).
 Then store it as an [environment variable](https://flask.palletsprojects.com/en/1.1.x/config/#configuring-from-environment-variables) named "ACCOUNT_KEY"
 
@@ -29,6 +29,13 @@ Run the app by issuing this command when in the src folder in cmd/terminal
 python app.py
 ```
 Access the application by navigating to "http://localhost:5000"
+
+### Dockerkized application
+Not working yet :(
+```shell
+docker build -t <tag-name> .
+docker run -p 5000:5000 <image-name>
+```
 
 ### API reference
 How to communicate with the server via the REST API. Remark: This is work in progress an breaking changes may occur!
