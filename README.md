@@ -1,4 +1,4 @@
-# TDT4856 Fuel Price Detection Group #3
+# TDT4856 - Fuel Price Detection - Group #3
 The main goal of this project is to use computer vision systems to detect fuel prices from local fuel stations.
 In order to succeed with this project the group will develop an application which will be enable the user to take pictures of price signs and list fuel prices. 
 ## Frontend
@@ -66,4 +66,5 @@ To insert an entry to the database send a POST request to "/input" with JSON con
 ```
 
 ### Database design
+Screenshot of database structure with example data:
 ![Database design](https://i.imgur.com/yxtjrll.png)
