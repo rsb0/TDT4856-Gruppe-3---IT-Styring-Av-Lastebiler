@@ -1,5 +1,6 @@
-# TDT4856 Fuel Price Detection
-Fuel price detection, Group 3 in the course TDT4856 (EiT)
+# TDT4856 Fuel Price Detection Group #3
+The main goal of this project is to use computer vision systems to detect fuel prices from local fuel stations.
+In order to succeed with this project the group will develop an application which will be enable the user to take pictures of price signs and list fuel prices. 
 ## Frontend
 TODO: Write necessary setup and prerequisites for the frontend here.
 
@@ -29,3 +30,6 @@ Access the application by navigating to "http://localhost:5000"
 
 ### API reference
 TODO: Write
+
+### Database design
+NoSQL
