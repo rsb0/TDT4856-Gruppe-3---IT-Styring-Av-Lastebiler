@@ -1,3 +1,6 @@
+"""
+    Simple starter template for the fuel price server
+"""
 from flask import Flask, request, redirect, jsonify, json
 import os
 import uuid
@@ -11,36 +14,34 @@ app.debug = True # only for development!
 app.config["DB_ACCOUNT_NAME"] = "fuelpricestorage"
 app.config["DB_TABLE_NAME"] = "prices"
 
-# Default route return empty string
+# Default route returns empty string
 @app.route("/")
 def index():
     return ""
 
 # Get a fuel price based on location and id
-@app.route("/price/<string:location>/<string:id>")
-def getPricesById(location, id):
-    # TODO: Extract table_service creation to init method
-    # TODO: Create priceEntity class?
+@app.route("/price/<string:area>/<string:id>")
+def getPricesById(area, id):
     if(is_valid_uuid(id)):
         table_service = TableService(account_name=app.config["DB_ACCOUNT_NAME"], account_key=os.environ.get("ACCOUNT_KEY"))
         try:
-            entry = table_service.get_entity(app.config["DB_TABLE_NAME"], location, id)
+            entry = table_service.get_entity(app.config["DB_TABLE_NAME"], area, id)
             return entry
         except Exception:
             return "No value for this ID found"
         return jsonify(entry)
 
 # Get fuel prices based on location and coordinates
-@app.route("/price/<string:location>/<string:coordinates>")
-def getPricesByCoordinates(location, coordinates):
+@app.route("/price/<string:area>/coordinates/<string:coordinates>")
+def getPricesByCoordinates(area, coordinates):
     table_service = TableService(account_name=app.config["DB_ACCOUNT_NAME"], account_key=os.environ.get("ACCOUNT_KEY"))
-    all_prices = table_service.query_entities(app.config["DB_TABLE_NAME"], filter=("PartitionKey eq '" + location + "'"))
+    all_prices = table_service.query_entities(app.config["DB_TABLE_NAME"], filter=("PartitionKey eq '" + area + "'"))
     
-    # Sort out prices where coordinates is not matching
+    # Sort out prices where coordinates is not matching entries in db
     relevant_prices = []
-    for price in all_prices:
-        if (price.coordinates == coordinates):
-            relevant_prices.append(price)
+    for entry in all_prices:
+        if (entry.location == coordinates):
+            relevant_prices.append(entry)
     return jsonify(relevant_prices)
 
 # Get all fuel prices based on location
@@ -54,23 +55,33 @@ def getPrices(location):
     return jsonify(price_list)
 
 # Insert new fuel price to the database. Only for dev purpose!
-@app.route("/statistics/input", methods=["POST"])
+@app.route("/input", methods=["POST"])
 def input():
-    # TODO: Implement
-    #json_content = request.get_json()
-    #json_content = json.dumps(json_content)
-    #if json_content == None:
-    #   return "No json content detected"
-    # Create a new table entity to insert into the db. 
+    json_content = request.get_json().get("new_prices")
+    if json_content is None:
+       return "No JSON content detected"
+    
     table_service = TableService(account_name=app.config["DB_ACCOUNT_NAME"], account_key=os.environ.get("ACCOUNT_KEY"))
-    entry = Entity()
-    entry.PartitionKey = 'trondelag' # Insert all to trondelag partition for now. Change later
-    entry.RowKey = uuid.uuid4() # Generate new random UUID
-    entry.price = 16.58 #TODO: Get from JSON input
-    entry.location = "63.410531, 10.418190" #TODO: Get from JSON input
-    entry.fueltype = "diesel" #TODO: Get from JSON input. Check taht fueltype is either diesel or gasoline?
-    table_service.insert_entity(app.config["DB_TABLE_NAME"], entry)
-    return "Inserted successfully: " + str(entry)
+    error = False
+
+    for val in json_content: # Loop through new_prices and add to database
+        entry = Entity()
+        try:
+            entry.PartitionKey = val["county"]
+            entry.RowKey = str(uuid.uuid4()) # Generate new random UUID
+            entry.price = val["price"]
+            entry.location = val["location"]
+            if (val["fueltype"] == "diesel" or val["fueltype"] == "gasoline"):
+                entry.fueltype = val["fueltype"]
+            else:
+                entry.fueltype = "unknown"
+            table_service.insert_entity(app.config["DB_TABLE_NAME"], entry)
+        except AttributeError:
+            print("Error trying to parse JSON object: " + val)
+            error = True
+    if error:
+        "Something went wrong. Try check your syntax"
+    return "Entries inserted succesfully!"
 
 # Helper methods
 def is_valid_uuid(val):

@@ -29,6 +29,39 @@ python app.py
 Access the application by navigating to "http://localhost:5000"
 
 ### API reference
+How to communicate with the server via the REST API. Remark: This is work in progress an breaking changes may occur!
+#### GET
+- ```/price/<string:location>/<string:id>```
+- ```/price/<string:location>/coordinates/<string:coordinates>```
+- ```/price/<string:location>```
+
+#### POST
+To insert an entry to the database send a POST request to "/input" with JSON content on the following form:
+```JSON
+{ 
+   "new_prices":[{ 
+   	  "county":"trondelag",
+      "price":15.85,
+      "location":"63.420876,10.460610",
+      "fueltype":"diesel"
+   },{ 
+   	  "county":"trondelag",
+      "price":16.34,
+      "location":"63.420876,10.460610",
+      "fueltype":"gasoline"
+   },{ 
+   	  "county":"trondelag",
+      "price":17.31,
+      "location":"63.420876,10.460610",
+      "fueltype":"gasoline"
+   },{ 
+   	  "county":"trondelag",
+      "price":15.84,
+      "location":"63.420876,10.460610",
+      "fueltype":"diesel"
+   }]
+}
+```
 TODO: Write
 
 ### Database design
