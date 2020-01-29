@@ -1,0 +1,3 @@
+Flask
+azure-cosmosdb-table
+uuid

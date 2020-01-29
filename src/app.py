@@ -17,7 +17,7 @@ app.config["DB_TABLE_NAME"] = "prices"
 # Default route returns empty string
 @app.route("/")
 def index():
-    return ""
+    return "working"
 
 # Get a fuel price based on location and id
 @app.route("/price/<string:area>/<string:id>")
