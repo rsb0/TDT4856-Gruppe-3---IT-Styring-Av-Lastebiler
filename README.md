@@ -66,4 +66,4 @@ To insert an entry to the database send a POST request to "/input" with JSON con
 ```
 
 ### Database design
-NoSQL
+![Database design](https://i.imgur.com/yxtjrll.png)
