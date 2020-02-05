@@ -1,8 +1,14 @@
-FROM python:3.8-slim
-# We copy just the requirements.txt first to leverage Docker cache
-COPY ./requirements.txt /app/requirements.txt
-WORKDIR /app
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
-COPY . /app
-ENTRYPOINT [ "python" ]
-CMD [ "app.py" ]
+FROM tiangolo/uwsgi-nginx-flask:python3.6
+
+# copy over our requirements.txt file
+COPY requirements.txt /tmp/
+
+# upgrade pip and install required python packages
+RUN pip install -U pip
+RUN pip install -r /tmp/requirements.txt
+
+# copy over our app code
+COPY ./app /app
+
+# set up environment variable
+ENV ACCOUNT_KEY "INSERT_KEY_HERE"

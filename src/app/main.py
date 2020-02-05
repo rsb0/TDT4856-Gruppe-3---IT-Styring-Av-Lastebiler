@@ -19,9 +19,21 @@ app.config["DB_TABLE_NAME"] = "prices"
 def index():
     return "working"
 
+# Get all fuel prices based on location
+@app.route("/price/<string:area>")
+def getPrices(area):
+    print("------------1----------")
+    table_service = TableService(account_name=app.config["DB_ACCOUNT_NAME"], account_key=os.environ.get("ACCOUNT_KEY"))
+    all_prices = table_service.query_entities(app.config["DB_TABLE_NAME"], filter=("PartitionKey eq '" + area + "'"))
+    price_list = []
+    for price in all_prices:
+        price_list.append(price)
+    return jsonify(price_list)
+
 # Get a fuel price based on location and id
 @app.route("/price/<string:area>/<string:id>")
 def getPricesById(area, id):
+    print("------------2----------")
     if(is_valid_uuid(id)):
         table_service = TableService(account_name=app.config["DB_ACCOUNT_NAME"], account_key=os.environ.get("ACCOUNT_KEY"))
         try:
@@ -34,6 +46,7 @@ def getPricesById(area, id):
 # Get fuel prices based on location and coordinates
 @app.route("/price/<string:area>/coordinates/<string:coordinates>")
 def getPricesByCoordinates(area, coordinates):
+    print("------------3----------")
     table_service = TableService(account_name=app.config["DB_ACCOUNT_NAME"], account_key=os.environ.get("ACCOUNT_KEY"))
     all_prices = table_service.query_entities(app.config["DB_TABLE_NAME"], filter=("PartitionKey eq '" + area + "'"))
     
@@ -43,16 +56,6 @@ def getPricesByCoordinates(area, coordinates):
         if (entry.location == coordinates):
             relevant_prices.append(entry)
     return jsonify(relevant_prices)
-
-# Get all fuel prices based on location
-@app.route("/price/<string:location>")
-def getPrices(location):
-    table_service = TableService(account_name=app.config["DB_ACCOUNT_NAME"], account_key=os.environ.get("ACCOUNT_KEY"))
-    all_prices = table_service.query_entities(app.config["DB_TABLE_NAME"], filter=("PartitionKey eq '" + location + "'"))
-    price_list = []
-    for price in all_prices:
-        price_list.append(price)
-    return jsonify(price_list)
 
 # Insert new fuel price to the database. Only for dev purpose!
 @app.route("/input", methods=["POST"])
@@ -101,4 +104,4 @@ def bad_request500(error):
     return "Oops, internal server error (500 error) :("
 
 if __name__ == "__main__":
-    app.run(host='127.0.0.1')
+    app.run(host='0.0.0.0', debug=True, port=80)
