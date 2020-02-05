@@ -6,25 +6,35 @@ import os
 import uuid
 from azure.cosmosdb.table.tableservice import TableService
 from azure.cosmosdb.table.models import Entity
+from azure.keyvault.secrets import SecretClient
+from azure.identity import DefaultAzureCredential
 
 app = Flask(__name__)
 app.debug = True # only for development!
 
-# Application config
-app.config["DB_ACCOUNT_NAME"] = "fuelpricestorage"
-app.config["DB_TABLE_NAME"] = "prices"
+# Key vault init
+"""
+key_vault_name = os.environ["KEY_VAULT_NAME"]
+KVUri = "https://" + key_vault_name + ".vault.azure.net"
+credential = DefaultAzureCredential()
+client = SecretClient(vault_url=KVUri, credential=credential)
+secretName = os.environ["SECRET_NAME"]
+retrieved_secret = client.get_secret(secretName)"""
+retrieved_secret = "STORAGE ACCOUNT KEY"
+
+# Table service init
+table_service = TableService(account_name=os.environ.get("DB_ACCOUNT_NAME"), account_key=retrieved_secret)
+table_name = os.environ.get("DB_TABLE_NAME")
 
 # Default route returns empty string
 @app.route("/")
 def index():
-    return "working"
+    return "working yey"
 
 # Get all fuel prices based on location
 @app.route("/price/<string:area>")
 def getPrices(area):
-    print("------------1----------")
-    table_service = TableService(account_name=app.config["DB_ACCOUNT_NAME"], account_key=os.environ.get("ACCOUNT_KEY"))
-    all_prices = table_service.query_entities(app.config["DB_TABLE_NAME"], filter=("PartitionKey eq '" + area + "'"))
+    all_prices = table_service.query_entities(table_name, filter=("PartitionKey eq '" + area + "'"))
     price_list = []
     for price in all_prices:
         price_list.append(price)
@@ -33,11 +43,9 @@ def getPrices(area):
 # Get a fuel price based on location and id
 @app.route("/price/<string:area>/<string:id>")
 def getPricesById(area, id):
-    print("------------2----------")
     if(is_valid_uuid(id)):
-        table_service = TableService(account_name=app.config["DB_ACCOUNT_NAME"], account_key=os.environ.get("ACCOUNT_KEY"))
         try:
-            entry = table_service.get_entity(app.config["DB_TABLE_NAME"], area, id)
+            entry = table_service.get_entity(table_name, area, id)
             return entry
         except Exception:
             return "No value for this ID found"
@@ -46,9 +54,7 @@ def getPricesById(area, id):
 # Get fuel prices based on location and coordinates
 @app.route("/price/<string:area>/coordinates/<string:coordinates>")
 def getPricesByCoordinates(area, coordinates):
-    print("------------3----------")
-    table_service = TableService(account_name=app.config["DB_ACCOUNT_NAME"], account_key=os.environ.get("ACCOUNT_KEY"))
-    all_prices = table_service.query_entities(app.config["DB_TABLE_NAME"], filter=("PartitionKey eq '" + area + "'"))
+    all_prices = table_service.query_entities(table_name, filter=("PartitionKey eq '" + area + "'"))
     
     # Sort out prices where coordinates is not matching entries in db
     relevant_prices = []
@@ -64,9 +70,7 @@ def input():
     if json_content is None:
        return "No JSON content detected"
     
-    table_service = TableService(account_name=app.config["DB_ACCOUNT_NAME"], account_key=os.environ.get("ACCOUNT_KEY"))
     error = False
-
     for val in json_content: # Loop through new_prices and add to database
         entry = Entity()
         try:
@@ -78,7 +82,7 @@ def input():
                 entry.fueltype = val["fueltype"]
             else:
                 entry.fueltype = "unknown"
-            table_service.insert_entity(app.config["DB_TABLE_NAME"], entry)
+            table_service.insert_entity(table_name, entry)
         except AttributeError:
             print("Error trying to parse JSON object: " + val)
             error = True
@@ -97,11 +101,11 @@ def is_valid_uuid(val):
 # Error handling
 @app.errorhandler(404)
 def page_not_found(error):
-    return "Oops, endpoint not found (404 error) :("
+    return "Oops, endpoint not found - 404"
 
 @app.errorhandler(500)
 def bad_request500(error):
-    return "Oops, internal server error (500 error) :("
+    return "Oops, internal server error - 500"
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', debug=True, port=80)

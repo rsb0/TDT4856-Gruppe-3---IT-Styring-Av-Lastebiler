@@ -10,5 +10,11 @@ RUN pip install -r /tmp/requirements.txt
 # copy over our app code
 COPY ./app /app
 
-# set up environment variable
-ENV ACCOUNT_KEY "INSERT_KEY_HERE"
+# expose port 80
+EXPOSE 80
+
+# set env variables
+ENV DB_ACCOUNT_NAME "fuelpricestorage"
+ENV DB_TABLE_NAME "prices"
+ENV KEY_VAULT_NAME "fuelprice-server"
+ENV SECRET_NAME "storage-account-key"
