@@ -13,14 +13,12 @@ app = Flask(__name__)
 app.debug = True # only for development!
 
 # Key vault init
-"""
-key_vault_name = os.environ["KEY_VAULT_NAME"]
+key_vault_name = os.environ.get("KEY_VAULT_NAME")
 KVUri = "https://" + key_vault_name + ".vault.azure.net"
 credential = DefaultAzureCredential()
 client = SecretClient(vault_url=KVUri, credential=credential)
-secretName = os.environ["SECRET_NAME"]
-retrieved_secret = client.get_secret(secretName)"""
-retrieved_secret = "STORAGE ACCOUNT KEY"
+secret_name = os.environ.get("SECRET_NAME")
+retrieved_secret = client.get_secret(secret_name)
 
 # Table service init
 table_service = TableService(account_name=os.environ.get("DB_ACCOUNT_NAME"), account_key=retrieved_secret)
