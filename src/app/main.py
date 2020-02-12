@@ -27,7 +27,6 @@ retrieved_secret = "TABLE_STORAGE_KEY"
 
 # account_name = os.environ.get("DB_ACCOUNT_NAME")
 # table_name = os.environ.get("DB_TABLE_NAME")
-# blob_connection_string = "DefaultEndpointsProtocol=https;AccountName=fuelpriceblob;AccountKey=iTyW+3LdGtmRwd8SDQO3yIVMDv1VGAf121NSxtyK9GUy97ZOUgsPm4uECticfdCi0J/ERfhAuQV931cOcUOTPw==;EndpointSuffix=core.windows.net"
 # blob_container_name = "images"
 
 # Table service init
@@ -43,7 +42,7 @@ blob_container_name = os.environ.get("BLOB_CONTAINER_NAME")
 # Default route returns empty string
 @app.route("/")
 def index():
-    return "Official API for the amazing fuelprice application!®"
+    return "Official API for the amazing fuel price application ®"
 
 # Get all fuel prices based on location
 @app.route("/price/<string:area>")
