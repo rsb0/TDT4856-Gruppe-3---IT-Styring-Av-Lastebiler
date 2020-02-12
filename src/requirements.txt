@@ -1,5 +1,6 @@
 Flask
 azure-cosmosdb-table
+azure-storage-blob
 uuid
 azure-keyvault-secrets
-azure.identity 
+azure.identity

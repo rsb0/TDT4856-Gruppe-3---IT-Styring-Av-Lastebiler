@@ -16,6 +16,7 @@ EXPOSE 80
 # set env variables
 ENV DB_ACCOUNT_NAME "fuelpricestorage"
 ENV DB_TABLE_NAME "prices"
+ENV BLOB_CONTAINER_NAME "images"
 ENV KEY_VAULT_NAME "fuelprice-server"
 ENV SECRET_NAME "storage-account-key"
 ENV AZURE_CLIENT_ID "<your-clientID>"
