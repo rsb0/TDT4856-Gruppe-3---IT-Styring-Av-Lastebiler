@@ -1,133 +1,51 @@
 """
-    Simple starter template for the fuel price server
+    Fuel price API
 """
 from flask import Flask, request, redirect, jsonify, json
-import os
-import uuid
-from azure.cosmosdb.table.tableservice import TableService
-from azure.cosmosdb.table.models import Entity
-from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
-from azure.keyvault.secrets import SecretClient
-from azure.identity import DefaultAzureCredential
-from werkzeug.utils import secure_filename
-from datetime import date
+import uuid, os
+from get_handlers import get_prices_by_area, get_prices_by_key
+from input_handlers import upload_picture_to_blob, upload_prices_to_table
 
 app = Flask(__name__)
 app.debug = True # only for development!
 
-# Key vault init
-# key_vault_name = os.environ.get("KEY_VAULT_NAME")
-# KVUri = "https://" + key_vault_name + ".vault.azure.net"
-# credential = DefaultAzureCredential()
-# client = SecretClient(vault_url=KVUri, credential=credential)
-# secret_name = os.environ.get("SECRET_NAME")
-# retrieved_secret = client.get_secret(secret_name)
-
-retrieved_secret = "TABLE_STORAGE_KEY"
-
-# account_name = os.environ.get("DB_ACCOUNT_NAME")
-# table_name = os.environ.get("DB_TABLE_NAME")
-# blob_container_name = "images"
-
-# Table service init
-table_service = TableService(account_name="fuelpricestorage", account_key=retrieved_secret)
-table_name = "prices"
-
-# Blob init
-blob_connection_string = "BLOB_CONNECTION_STRING"
-blob_container_name = os.environ.get("BLOB_CONTAINER_NAME")
-
-#TODO: Get connection string for blob and secret for table storage from Key Vault!
-
-# Default route returns empty string
+# Default route returns default info string
 @app.route("/")
 def index():
     return "Official API for the amazing fuel price application ®"
 
 # Get all fuel prices based on location
-@app.route("/price/<string:area>")
-def getPrices(area):
-    all_prices = table_service.query_entities(table_name, filter=("PartitionKey eq '" + area + "'"))
-    price_list = []
-    for price in all_prices:
-        price_list.append(price)
-    return jsonify(price_list)
+@app.route("/prices/<string:area>")
+def get_prices(area):
+    return get_prices_by_area(area)
 
 # Get a fuel price based on location and id
-@app.route("/price/<string:area>/<string:id>")
-def getPricesById(area, id):
-    if(is_valid_uuid(id)):
-        try:
-            entry = table_service.get_entity(table_name, area, id)
-            return entry
-        except Exception:
-            return "No value for this ID found"
-        return jsonify(entry)
+@app.route("/prices/<string:area>/<string:id>")
+def get_prices_by_id(area, id):
+    return get_prices_by_key(area, id)
 
 # Get fuel prices based on location and coordinates
-@app.route("/price/<string:area>/coordinates/<string:coordinates>")
-def getPricesByCoordinates(area, coordinates):
-    all_prices = table_service.query_entities(table_name, filter=("PartitionKey eq '" + area + "'"))
-    
-    # Sort out prices where coordinates is not matching entries in db
-    relevant_prices = []
-    for entry in all_prices:
-        if (entry.location == coordinates):
-            relevant_prices.append(entry)
-    return jsonify(relevant_prices)
+@app.route("/prices/<string:area>/coordinates/<string:coordinates>")
+def get_prices_by_coordinates(area, coordinates):
+    return get_prices_by_key(area, coordinates)
 
-# Insert new fuel price to the database. Only for dev purpose!
-@app.route("/input/price", methods=["POST"])
+# Insert new fuel prices to the database
+@app.route("/upload/price", methods=["POST"])
 def input_price():
-    json_content = request.get_json().get("new_prices")
-    if json_content is None:
-       return "No JSON content detected"
-    
-    error = False
-    for val in json_content: # Loop through new_prices and add to database
-        entry = Entity()
-        try:
-            entry.PartitionKey = val["county"]
-            entry.RowKey = str(uuid.uuid4()) # Generate new random UUID
-            entry.price = val["price"]
-            entry.location = val["location"]
-            if (val["fueltype"] == "diesel" or val["fueltype"] == "gasoline"):
-                entry.fueltype = val["fueltype"]
-            else:
-                entry.fueltype = "unknown"
-            table_service.insert_entity(table_name, entry)
-        except AttributeError:
-            print("Error trying to parse JSON object: " + val)
-            error = True
-    if error:
-        "Something went wrong. Try check your syntax"
-    return "Entries inserted succesfully!"
+    json_prices = request.get_json().get("new_prices")
+    if json_prices is None:
+       return "No JSON content detected!"
+    return upload_prices_to_table(json_prices)
 
 # Process picture to extract price
-@app.route("/input/image", methods=["POST"])
-def input_picture():
+@app.route("/upload/image", methods=["POST"])
+def input_picture():   
     if request.files['img']:
-        img = request.files['img']
-        # Create unambigous image file name
-        img_name = secure_filename(str(date.today()) + "-" + str(uuid.uuid4()))
-
-        # Create connection to blob storage
-        blob_service_client = BlobServiceClient.from_connection_string(blob_connection_string)
-        blob_client = blob_service_client.get_blob_client(container=blob_container_name, blob=img_name)
-        
-        # Upload image to blob
-        blob_client.upload_blob(img)
-        return "Image succesfully uploaded to blob storage"
+        # TODO: Add picture processing here
+        upload_picture_to_blob(request.files['img'])
+        return "Image succesfully uploaded to blob storage!"
     else:
     	return "Where is the image?"
-
-# Helper methods
-def is_valid_uuid(val):
-    try:
-        uuid.UUID(str(val))
-        return True
-    except ValueError:
-        return False
 
 # Error handling
 @app.errorhandler(404)
@@ -139,4 +57,4 @@ def bad_request500(error):
     return "Oops, internal server error - 500"
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True, port=80)
+    app.run(host='0.0.0.0', port=80)
