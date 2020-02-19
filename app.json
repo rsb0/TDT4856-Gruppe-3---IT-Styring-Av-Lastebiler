@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "Gassy",
+    "slug": "Gassy",
+    "privacy": "public",
+    "sdkVersion": "36.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/gasIcon.png",
+    "splash": {
+      "image": "./assets/images/gasIcon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "bundleIdentifier": "com.TDT4856.G3",
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyDVsHFjR6UjDd8xCZE0Zxwo7lKfFUEfy2I"
+      }
+    },
+    "android": {
+      "package": "com.TDT4856.G3",
+      "versionCode": 1,
+      "config":  {
+        "googleMaps": {
+          "apiKey": "AIzaSyDVsHFjR6UjDd8xCZE0Zxwo7lKfFUEfy2I"
+        }
+      }
+    }
+  }
+}
