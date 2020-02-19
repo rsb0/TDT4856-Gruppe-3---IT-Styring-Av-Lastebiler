@@ -25,3 +25,8 @@ ENV BLOB_CONTAINER_NAME "images"
 ENV KEY_VAULT_NAME "fuelprice-server-kv"
 ENV SECRET_NAME_STORAGE_KEY "storage-account-key"
 ENV SECRET_NAME_BLOB_STRING "blob-connection-string"
+
+  
+# FROM python:3.7-slim
+
+CMD [ "python", "app.py" ]
