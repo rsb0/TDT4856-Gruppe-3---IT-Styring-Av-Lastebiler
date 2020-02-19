@@ -3,9 +3,10 @@ from azure.cosmosdb.table.tableservice import TableService
 from azure.cosmosdb.table.models import Entity
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 
+print("Environent variables: ", os.environ)
 # Blob service init
 blob_container_name = os.environ.get("BLOB_CONTAINER_NAME")
-blob_service_client = BlobServiceClient.from_connection_string(os.environ.get("BLOB_CONNECTION_STRING"))
+blob_service_client = BlobServiceClient.from_connection_string(os.environ.get("BLOB_CONNECTION_STR"))
 
 # Table service init
 table_service = TableService(os.environ.get("DB_ACCOUNT_NAME"), os.environ.get("TABLE_KEY"))
