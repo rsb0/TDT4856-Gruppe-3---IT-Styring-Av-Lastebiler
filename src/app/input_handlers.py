@@ -2,7 +2,6 @@ import uuid, os
 from azure.cosmosdb.table.tableservice import TableService
 from azure.cosmosdb.table.models import Entity
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
-from helpers import get_table_key, get_blob_connection_string
 
 # Blob service init
 blob_container_name = os.environ.get("BLOB_CONTAINER_NAME")
