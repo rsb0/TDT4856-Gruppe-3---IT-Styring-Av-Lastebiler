@@ -11,9 +11,9 @@
     ],
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/gasIcon.png",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/gasIcon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -24,7 +24,20 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier": "com.TDT4856.G3",
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyDVsHFjR6UjDd8xCZE0Zxwo7lKfFUEfy2I"
+      }
+    },
+    "android": {
+      "package": "com.TDT4856.G3",
+      "versionCode": 1,
+      "config":  {
+        "googleMaps": {
+          "apiKey": "AIzaSyDVsHFjR6UjDd8xCZE0Zxwo7lKfFUEfy2I"
+        }
+      }
     }
   }
 }
