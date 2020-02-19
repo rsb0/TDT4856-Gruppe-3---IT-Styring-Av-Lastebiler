@@ -27,7 +27,7 @@ export default class CameraComponent extends React.Component {
 
     async takeImage() {
         if (this.camera && this.state.hasPermission) {
-            let image = await this.camera.takePictureAsync();
+            let image = await this.camera.takePictureAsync({base64: true, exif: true});
             this.setState(state => ({
                 image: image
             }));
@@ -48,13 +48,29 @@ export default class CameraComponent extends React.Component {
         }))
     }
 
-    sendImage() {
-        console.log("send");
-        this.setState(state => ({
-            image: null,
-            openCamera: false,
-        }));
-        this.props.navigation.navigate("Prices", {imageTaken: true});
+    async sendImage() {
+        try {
+            let formdata = new FormData();
+            formdata.append("img", { uri: this.state.image.uri, type: "image/jpeg", name: "img.jpeg" });
+
+            let res = await fetch("https://fuelprice-server.azurewebsites.net/upload/image", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                },
+                body: formdata
+            });
+            res = await res.text();
+            console.log(res);
+
+            this.setState(state => ({
+                image: null,
+                openCamera: false,
+            }));
+            this.props.navigation.navigate("Prices", {imageTaken: true});
+        } catch (e) {
+            console.log(e);
+        }
     }
 
     render() {
@@ -71,25 +87,20 @@ export default class CameraComponent extends React.Component {
                         source={{uri: this.state.image.uri}}
                     >
                         <View style={{flex: 0.1, justifyContent: "space-around", flexDirection: "row"}}>
-                            {/*<Button onPress={this.retakeImage} title={"Retake image"} />*/}
-                            {/*<Button onPress={this.retakeImage} title={"Send image"} />*/}
                             <Ionicons
                                 name={"md-redo"}
                                 size={50}
-                                // style={{ marginBottom: -3 }}
                                 color={"white"}
                                 onPress={this.retakeImage}
                             />
                             <Ionicons
                                 name={"md-send"}
                                 size={50}
-                                // style={{ marginBottom: -3 }}
                                 color={"white"}
                                 onPress={this.sendImage}
                             />
                         </View>
                     </ImageBackground>
-                    {/*<Button onPress={this.} title={"Camera"} />*/}
                 </View>
             )
         } else if(this.state.openCamera) {
@@ -108,8 +119,6 @@ export default class CameraComponent extends React.Component {
                         <TouchableOpacity
                             style={{
                                 flex: 0.1,
-                                // borderWidth: 3,
-                                // borderColor: "black",
                                 alignItems: 'center',
                                 justifyContent: "center"
                             }}
@@ -119,10 +128,8 @@ export default class CameraComponent extends React.Component {
                             <Ionicons
                                 name={"md-radio-button-off"}
                                 size={50}
-                                // style={{ marginBottom: -3 }}
                                 color={"white"}
                             />
-                            {/*<Text style={{ fontSize: 18, marginBottom: 10, color: 'red' }}> Cliick </Text>*/}
                         </TouchableOpacity>
                     </Camera>
                 </View>
