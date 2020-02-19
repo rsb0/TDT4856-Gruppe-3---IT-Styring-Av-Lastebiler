@@ -1,5 +1,6 @@
 # Base image
-FROM tiangolo/uwsgi-nginx-flask:python3.6
+# FROM tiangolo/uwsgi-nginx-flask:python3.6
+FROM python:3.7-slim
 
 # Copy over our requirements.txt file
 COPY requirements.txt /tmp/
@@ -26,7 +27,4 @@ ENV KEY_VAULT_NAME "fuelprice-server-kv"
 ENV SECRET_NAME_STORAGE_KEY "storage-account-key"
 ENV SECRET_NAME_BLOB_STRING "blob-connection-string"
 
-  
-# FROM python:3.7-slim
-
-CMD [ "python", "app.py" ]
+CMD [ "python", "app/main.py" ]
