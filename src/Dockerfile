@@ -1,5 +1,4 @@
 # Base image
-# FROM tiangolo/uwsgi-nginx-flask:python3.6
 FROM python:3.7-slim
 
 # Copy over our requirements.txt file

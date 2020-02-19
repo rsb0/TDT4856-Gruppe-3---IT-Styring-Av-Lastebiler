@@ -12,11 +12,11 @@ from azure.identity import DefaultAzureCredential
 
 def get_table_key():
     # return client.get_secret(secret_name_storage_key)
-    return "NEXqWYKPcrBDbFVGlQodPjll8jzVOJStPsZISiZg7ST+Q/oX/B2ooUMChn9ouD9O7bcJHEnKUx8VAWFrInPGyQ=="
+    return ""
     
 def get_blob_connection_string():
     # return client.get_secret(secret_name_blob_string)
-    return "DefaultEndpointsProtocol=https;AccountName=fuelpriceblob;AccountKey=/01XgCnjTN2UFLWZA+lL06Xa/6HwfuhtGu6K3atWPw9Qr7C2TScpKT6b/HjxcX8fu0AE2VVRl6hX7LkoV74sLg==;EndpointSuffix=core.windows.net"
+    return ""
 
 def is_valid_uuid(val):
     try:
