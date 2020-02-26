@@ -14,38 +14,38 @@ Process pictures and stores fuel price related information.
 - [Flask 1.1.1](https://flask.palletsprojects.com/en/1.1.x)
 - [Azure Cosmos DB Table SDK for Python](https://docs.microsoft.com/en-us/azure/cosmos-db/table-storage-how-to-use-python)
 - [UUID](https://docs.python.org/3/library/uuid.html)
+- [python-dotenv](https://pypi.org/project/python-dotenv/)
 
 ### Getting started
-This project requires, you need to have Python3 and pip installed on your machine. Easiest way to get it is by installing [Anaconda](https://www.anaconda.com/download). After you have done this, run the command below in cmd/termnial to install the remaining prerequisites.
+This project requires, you need to have Python3 and pip installed on your machine. Easiest way to get it is by installing [Anaconda](https://www.anaconda.com/download). 
 
-```shell
-python -m pip install Flask
-python -m pip install azure-cosmosdb-table
-python -m pip install uuid
-```
 ### Running the application locally
-In order to get access to the database you need to an acces key (ask someone in the team for this).
-Then store it as an [environment variable](https://flask.palletsprojects.com/en/1.1.x/config/#configuring-from-environment-variables) named "ACCOUNT_KEY"
+When running the application locally you need a .env-file. Ask someone in the team for this.
 
-Run the app by issuing this command when in the src folder in cmd/terminal
+1. Navigate to the src folder
+2. Install all necessary requirements
+```shell
+pip install -r requirements.txt
+```
+3. Navigate to the app folder
+4. Run the application
 ```shell
 python app.py
 ```
-Access the application by navigating to "http://localhost:5000"
+5. Access the application by navigating to "http://localhost:80" or "http://0.0.0.0:80".
 
-### Dockerkized application
-Not working yet :(
+### Dockerkize application
 ```shell
 docker build -t <tag-name> .
-docker run -p 5000:5000 <image-name>
+docker run -p 80:80 <image-name>
 ```
 
 ### API reference
 How to communicate with the server via the REST API. Remark: This is work in progress an breaking changes may occur!
 #### GET
-- By location and ID: ```/price/<string:location>/<string:id>```
-- By location and coordinates: ```/price/<string:location>/coordinates/<string:coordinates>```
-- By location: ```/price/<string:location>```
+- By location and ID: ```/prices/<string:location>/<string:id>```
+- By location and coordinates: ```/prices/<string:location>/coordinates/<string:coordinates>```
+- By location: ```/prices/<string:location>```
 
 #### POST
 To insert an entry to the database send a POST request to "/input" with JSON content on the following form:
