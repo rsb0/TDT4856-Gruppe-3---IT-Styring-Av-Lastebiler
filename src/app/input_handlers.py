@@ -2,20 +2,15 @@ import uuid, os
 from azure.cosmosdb.table.tableservice import TableService
 from azure.cosmosdb.table.models import Entity
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
-from helpers import get_table_key, get_blob_connection_string
 
 # Blob service init
-blob_service_client = BlobServiceClient.from_connection_string(get_blob_connection_string())
-#blob_container_name = os.environ.get("BLOB_CONTAINER_NAME")
+blob_service_client = BlobServiceClient.from_connection_string(os.environ.get("BLOB_CONNECTION_STRING"))
+blob_container_name = os.environ.get("BLOB_CONTAINER_NAME")
 
 # Table service init
-#table_service = TableService(os.environ.get("DB_ACCOUNT_NAME"), account_key=get_table_key())
-#table_name = os.environ.get("DB_TABLE_NAME")
+table_service = TableService(os.environ.get("DB_ACCOUNT_NAME"), account_key=os.environ.get("TABLE_KEY"))
+table_name = os.environ.get("DB_TABLE_NAME")
 
-# Uncomment for dev
-blob_container_name = os.environ.get("images")
-table_service = TableService("fuelpricestorage", account_key=get_table_key())
-table_name = "prices" 
 
 def upload_picture_to_blob(image):
         # Create unambigous image file name
