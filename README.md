@@ -1,4 +1,5 @@
-# TDT4856 - Fuel Price Detection - Group #3
+# TDT4856 - Fuel Price Detection - Group #3 
+[![Build status](https://dev.azure.com/matstyldum/FuelPriceApp/_apis/build/status/fuelpriceapi%20-%20CI)](https://dev.azure.com/matstyldum/FuelPriceApp/_build/latest?definitionId=2)
 The main goal of this project is to use computer vision systems to detect fuel prices from local fuel stations.
 In order to succeed with this project the group will develop an application which will be enable the user to take pictures of price signs and list fuel prices. 
 ## Frontend
