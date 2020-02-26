@@ -195,4 +195,4 @@ fabric.properties
 .history
 
 # Environment variables
-.env
+src/app/.env
