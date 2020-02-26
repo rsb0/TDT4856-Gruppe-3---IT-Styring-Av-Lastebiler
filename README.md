@@ -34,10 +34,16 @@ python app.py
 ```
 5. Access the application by navigating to "http://localhost:80" or "http://0.0.0.0:80".
 
+### CI/CD
+Continous integration is setup so that all commits to the backend-master branch autmoatically will build a new container.
+This container wil then be deployed to a custom Azure Container Registry. The application will be available at 
+[https://fuelpriceapi.azurewebsites.net/](https://fuelpriceapi.azurewebsites.net/) if everything succeeds!
+
 ### Dockerkize application
+If you want to build and run the Docker image locally use the below commands:
 ```shell
-docker build -t <tag-name> .
-docker run -p 80:80 <image-name>
+docker build -t <image-name>:<tag-name> .
+docker run -p 80:80 <image-name>:<tag-name>
 ```
 
 ### API reference
