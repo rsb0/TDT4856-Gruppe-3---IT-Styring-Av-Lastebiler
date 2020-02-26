@@ -1,3 +1,4 @@
+# Base image
 FROM python:3.7-slim
 
 # Copy over our requirements.txt file
