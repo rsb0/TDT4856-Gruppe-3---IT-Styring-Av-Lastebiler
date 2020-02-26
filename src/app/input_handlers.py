@@ -43,4 +43,4 @@ class InputHandler:
         if error:
             return "Something went wrong. Try check your syntax"
         else:
-            return "Inserted sucess"
+            return "Inserted successfully"
