@@ -14,11 +14,5 @@ COPY ./app /app
 # Expose port 80
 EXPOSE 80
 
-# Table environment variables
-ENV DB_ACCOUNT_NAME "fuelpricestorage"
-ENV DB_TABLE_NAME "prices"
-
-# Blob environment variables
-ENV BLOB_CONTAINER_NAME "images"
-
+# Run app
 CMD [ "python", "app/main.py" ]
