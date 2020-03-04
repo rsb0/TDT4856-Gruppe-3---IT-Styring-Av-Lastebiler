@@ -13,7 +13,7 @@ Process pictures and stores fuel price related information.
 - [UUID](https://docs.python.org/3/library/uuid.html)
 
 ### Getting started
-This project requires, you need to have Python3 and pip installed on your machine. Easiest way to get it is by installing [Anaconda](https://www.anaconda.com/download). After you have done this, run the command below in cmd/termnial to install the remaining prerequisites.
+This project requires you need to have Python3 and pip installed on your machine. Easiest way to get it is by installing [Anaconda](https://www.anaconda.com/download). After you have done this, run the command below in cmd/termnial to install the remaining prerequisites.
 
 ```shell
 python -m pip install Flask
