@@ -12,17 +12,14 @@ class InputHandler:
         self.table_service = TableService(os.environ.get("DB_ACCOUNT_NAME"), account_key=env_vars.get("TABLE_KEY"))
         self.table_name = env_vars.get("DB_TABLE_NAME")
 
-    def upload_picture_to_blob(self, image):
-            # Create unambigous image file name
-            img_name = str(uuid.uuid4())
-
+    def upload_picture_to_blob(self, img, img_name):
             # Create connection to blob storage
             blob_client = self.blob_service_client.get_blob_client(container=self.blob_container_name, blob=img_name)
             
             # Upload image to blob
-            blob_client.upload_blob(image)
+            blob_client.upload_blob(img)
 
-    def upload_prices_to_table(self, prices):
+    def upload_json_prices(self, prices):
         error = False
         for val in prices: # Loop through new_prices and add to database
             entry = Entity()
@@ -44,3 +41,18 @@ class InputHandler:
             return "Something went wrong. Try check your syntax"
         else:
             return "Inserted successfully"
+
+    def upload_price(self, price, fuel_type, location):
+        entry = Entity()
+        try:
+            entry.PartitionKey = "trondelag"
+            entry.RowKey = str(uuid.uuid4()) # Generate new random UUID
+            entry.price = price
+            entry.location = location
+            entry.fueltype = fuel_type
+            self.table_service.insert_entity(self.table_name, entry)
+        except AttributeError:
+            print("Error trying to upload: Fuel type '" + fuel_type + "' Price '" + price + "'")
+            return "Something went wrong. Try check your syntax"
+        return "Price inserted successfully"
+            

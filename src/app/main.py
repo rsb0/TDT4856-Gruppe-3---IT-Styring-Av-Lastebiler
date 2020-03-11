@@ -7,6 +7,8 @@ from os.path import join, dirname
 from dotenv import load_dotenv
 from get_handlers import GetHandler
 from input_handlers import InputHandler
+from image_processing import process_image
+import base64
 
 app = Flask(__name__)
 app.debug = True # only for development!
@@ -46,18 +48,30 @@ def input_price():
     json_prices = request.get_json().get("new_prices")
     if json_prices is None:
        return "No JSON content detected!"
-    return obj.upload_prices_to_table(json_prices)
+    return obj.upload_json_prices(json_prices)
 
 # Process picture to extract price
 @app.route("/upload/image", methods=["POST"])
 def input_picture():   
-    if request.files['img']:
+    img_str = request.get_json().get("image")
+    location = request.get_json().get("location")
+    img_data = base64.b64decode(img_str)
+    img_name = str(uuid.uuid4()) # Create unambigous image file name
+    file_name = img_name + '.jpeg'
+
+    # Write base64 string to image file
+    with open(file_name, 'wb') as file:
+        file.write(img_data)
+    
+    # Upload image data to blob storage, process and save price to db
+    with open(file_name, 'rb') as file:
         obj = InputHandler(env_vars)
-        # TODO: Add picture processing here
-        obj.upload_picture_to_blob(request.files['img'])
-        return "Image succesfully uploaded to blob storage!"
-    else:
-    	return "Where is the image?"
+        obj.upload_picture_to_blob(file, img_name)
+        price, fuel_type = process_image(file)
+        obj.upload_price(price, fuel_type, location)
+
+    os.remove(file_name) # Remove previously created file
+    return "Image succesfully uploaded to blob storage!"
 
 # Error handling
 @app.errorhandler(404)
