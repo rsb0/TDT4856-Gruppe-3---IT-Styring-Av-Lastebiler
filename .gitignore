@@ -249,6 +249,9 @@ fabric.properties
 
 # Pyre type checker
 
+#MAC
+*/.DS_Store
+
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json
