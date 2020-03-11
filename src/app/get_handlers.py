@@ -4,6 +4,7 @@ from azure.cosmosdb.table.tableservice import TableService
 from azure.cosmosdb.table.models import Entity
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 from helpers import is_valid_uuid
+from datetime import datetime, timedelta, timezone
 
 class GetHandler:
     def __init__(self, env_vars):
@@ -19,13 +20,12 @@ class GetHandler:
         price_list = []
         for price in all_prices:
             price_list.append(price)
-        return jsonify(price_list)
+        return jsonify(self.remove_old_prices(price_list))
 
     def get_prices_by_key(self, partition_key, key):
         if(is_valid_uuid(key)): # Key is id
             try:
                 entry = self.table_service.get_entity(self.table_name, partition_key, key)
-                return entry
             except Exception:
                 return "No value for this ID found"
             return jsonify(entry)
@@ -33,8 +33,17 @@ class GetHandler:
             all_prices = self.table_service.query_entities(self.table_name, filter=("PartitionKey eq '" + partition_key + "'"))
         
             # Sort out prices where coordinates is not matching entries in db
-            relevant_prices = []
+            price_list = []
             for entry in all_prices:
                 if (entry.location == id):
-                    relevant_prices.append(entry)
-            return jsonify(relevant_prices)
+                    price_list.append(entry)
+            return jsonify(self.remove_old_prices(price_list)) # Remove unwanted/old prices and return result as JSON
+    
+    # Helper function to remove unwanted/old prices
+    def remove_old_prices(self, price_list):
+        relevant_prices = []
+        for price in price_list:
+            threshold = datetime.now(timezone.utc) - timedelta(days=7)
+            if price.Timestamp > threshold:
+                relevant_prices.append(price)
+        return relevant_prices
