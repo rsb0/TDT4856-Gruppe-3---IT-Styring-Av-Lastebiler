@@ -54,7 +54,7 @@ How to communicate with the server via the REST API. Remark: This is work in pro
 - By location: ```/prices/<string:location>```
 
 #### POST
-To insert an entry to the database send a POST request to "/input" with JSON content on the following form:
+To insert an entry to the database send a POST request to "/upload/prices" with JSON content on the following form:
 ```JSON
 { 
    "new_prices":[{ 
