@@ -2,10 +2,9 @@
 [![Build status](https://dev.azure.com/matstyldum/FuelPriceApp/_apis/build/status/fuelpriceapi%20-%20CI)](https://dev.azure.com/matstyldum/FuelPriceApp/_build/latest?definitionId=2)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-The main goal of this project is to use computer vision systems to detect fuel prices from local fuel stations.
-In order to succeed with this project the group will develop an application which will be enable the user to take pictures of price signs and list fuel prices. 
-## Frontend
-TODO: Write necessary setup and prerequisites for the frontend here.
+The main goal of this project is to use computer vision systems to detect fuel prices from local fuel stations. In order to succeed with this project the group will develop an application which will be enable the user to take pictures of price signs and list fuel prices. 
+## Mobile application
+TODO: Write necessary setup and prerequisites for the mobile app here.
 
 ## Backend
 Process pictures and stores fuel price related information.
@@ -54,7 +53,7 @@ How to communicate with the server via the REST API. Remark: This is work in pro
 - By location: ```/prices/<string:location>```
 
 #### POST
-To insert an entry to the database send a POST request to "/upload/prices" with JSON content on the following form:
+To insert an data directly as text to the database send a POST request to "/upload/prices" with JSON content on the following form:
 ```JSON
 { 
    "new_prices":[{ 
@@ -78,6 +77,14 @@ To insert an entry to the database send a POST request to "/upload/prices" with 
       "location":"63.420876,10.460610",
       "fueltype":"diesel"
    }]
+}
+
+```
+To upload and process an image send a POST request to "/upload/image" with JSON content on the following form:
+```JSON
+{
+    "image": "Base64 string here",
+    "location": "63.420876,10.460610"
 }
 ```
 
