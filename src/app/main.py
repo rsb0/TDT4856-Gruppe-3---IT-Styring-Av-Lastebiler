@@ -24,22 +24,22 @@ def index():
     return "Official API for the amazing fuel price application ®"
 
 # Get all fuel prices based on location
-@app.route("/prices/<string:area>")
-def get_prices(area):
+@app.route("/prices/<string:partition_key>")
+def get_prices(partition_key):
     obj = GetHandler(env_vars)
-    return obj.get_prices_by_area(area)
+    return obj.get_prices_by_partition_key(partition_key)
 
 # Get a fuel price based on location and id
-@app.route("/prices/<string:area>/<string:id>")
-def get_prices_by_id(area, id):
+@app.route("/prices/<string:partition_key>/<string:id>")
+def get_prices_by_id(partition_key, id):
     obj = GetHandler(env_vars)
-    return obj.get_prices_by_key(area, id)
+    return obj.get_prices_by_key(partition_key, id)
 
 # Get fuel prices based on location and coordinates
-@app.route("/prices/<string:area>/coordinates/<string:coordinates>")
-def get_prices_by_coordinates(area, coordinates):
+@app.route("/prices/<string:partition_key>/coordinates/<string:coordinates>")
+def get_prices_by_coordinates(partition_key, coordinates):
     obj = GetHandler(env_vars)
-    return obj.get_prices_by_key(area, coordinates)
+    return obj.get_prices_by_key(partition_key, coordinates)
 
 # Insert new fuel prices to the database
 @app.route("/upload/price", methods=["POST"])
