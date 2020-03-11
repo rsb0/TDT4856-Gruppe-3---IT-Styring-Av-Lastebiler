@@ -57,22 +57,22 @@ To insert an data directly as text to the database send a POST request to "/uplo
 ```JSON
 { 
    "new_prices":[{ 
-   	  "county":"trondelag",
+   	"county":"trondelag",
       "price":15.85,
       "location":"63.420876,10.460610",
       "fueltype":"diesel"
    },{ 
-   	  "county":"trondelag",
+   	"county":"trondelag",
       "price":16.34,
       "location":"63.420876,10.460610",
       "fueltype":"gasoline"
    },{ 
-   	  "county":"trondelag",
+   	"county":"trondelag",
       "price":17.31,
       "location":"63.420876,10.460610",
       "fueltype":"gasoline"
    },{ 
-   	  "county":"trondelag",
+   	"county":"trondelag",
       "price":15.84,
       "location":"63.420876,10.460610",
       "fueltype":"diesel"
