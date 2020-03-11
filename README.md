@@ -17,7 +17,7 @@ Process pictures and stores fuel price related information.
 - [python-dotenv](https://pypi.org/project/python-dotenv/)
 
 ### Getting started
-This project requires, you need to have Python3 and pip installed on your machine. Easiest way to get it is by installing [Anaconda](https://www.anaconda.com/download). 
+This project requires you to have Python3 and pip installed on your machine. Easiest way to get it is by installing [Anaconda](https://www.anaconda.com/download). After you have done this, run the command below in cmd/termnial to install the remaining prerequisites.
 
 ### Running the application locally
 When running the application locally you need a .env-file. Ask someone in the team for this.
