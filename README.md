@@ -29,13 +29,13 @@ pip install -r requirements.txt
 3. Navigate to the app folder
 4. Run the application
 ```shell
-python app.py
+python main.py
 ```
 5. Access the application by navigating to "http://localhost:80" or "http://0.0.0.0:80".
 
 ### CI/CD
-Continous integration is setup so that all commits to the backend-master branch autmoatically will build a new container.
-This container wil then be deployed to a custom Azure Container Registry. The application will be available at 
+Continous integration is set up so that all commits to the backend-master branch automatically will build a new container.
+This container wil then be deployed to a custom Azure Container Registry. The application will run as a web service and be available at 
 [https://fuelpriceapi.azurewebsites.net/](https://fuelpriceapi.azurewebsites.net/) if everything succeeds!
 
 ### Dockerkize application
@@ -91,3 +91,6 @@ To upload and process an image send a POST request to "/upload/image" with JSON 
 ### Database design
 Screenshot of database structure with example data:
 ![Database design](https://i.imgur.com/yxtjrll.png)
+
+### Questions
+All questions related to the backend or CI/CD-config, can be directed to [Mats Tyldum](https://github.com/maattss).
