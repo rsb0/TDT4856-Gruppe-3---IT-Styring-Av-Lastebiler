@@ -5,7 +5,7 @@ from torch import nn
 import torchvision
 from torchvision import transforms
 from engine import train_one_epoch, evaluate
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from pycocotools.coco import COCO
 
 from utils_custom import get_transform, collate_fn_custom, get_model_instance_detection
@@ -312,7 +312,9 @@ if __name__ == "__main__":
 
     # print(my_model)
 
-    img = Image.open(os.path.join('data/images', '4.png')).convert('RGB')
+    img = Image.open(os.path.join('data', '13.png')).convert('RGB')
+
+    orig_img = img.copy()
 
     transforms = get_transform(train=False)
 
@@ -321,11 +323,37 @@ if __name__ == "__main__":
     img = img.to(device)
     img = img.unsqueeze(1).float()
 
-    detections = 0
-
     with torch.no_grad():
         detections = my_model(img)
 
-    print(detections)
+    detection = detections[0]
+    
+    box1 = detection['boxes'].tolist()[0]
+    label1 = int(detection['labels'].tolist()[0])
+
+    x1, y1, x2, y2 = box1
+    
+    print(label1)
+
+    draw = ImageDraw.Draw(orig_img)
+
+    start1 = (int(x1), int(y1))
+    stop1 = (int(x2), int(y2))
+
+    xy = [start1, stop1]
+
+    # draw.rectangle(xy=[x1, y1, x1 + x2, y1 + y2], outline='red')
+
+    draw.rectangle(xy, outline='red', width=5)
+
+    font = ImageFont.truetype("arial.ttf", 20)
+    draw.text((x1,y1 - 35), "Fuel Station", fill=(255,255,0), font=font)
+
+    #if label1 == 1:
+    #    draw.text((x1, y1), text='Fuel station')
+
+    del draw
+
+    orig_img.show()
 
     # train_object_detector()
