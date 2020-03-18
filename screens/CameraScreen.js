@@ -4,6 +4,7 @@ import { Camera } from 'expo-camera';
 import { NavigationEvents } from "react-navigation";
 import { Ionicons } from '@expo/vector-icons';
 import Colors from "../constants/Colors";
+import * as Permissions from "expo-permissions";
 
 export default class CameraComponent extends React.Component {
     constructor(props) {
@@ -12,25 +13,53 @@ export default class CameraComponent extends React.Component {
             hasPermission: false,
             cameraType: Camera.Constants.Type.back,
             openCamera: true,
+            location: {
+                latitude: null,
+                longitude: null
+            }
         };
         this.toggleCamera = this.toggleCamera.bind(this);
         this.retakeImage = this.retakeImage.bind(this);
-        this.sendImage = this.sendImage.bind(this);
+        this.setLocationAndSend = this.setLocationAndSend.bind(this);
     }
 
     async componentDidMount() {
-        const status = await Camera.requestPermissionsAsync();
+        const camera_status = await Camera.requestPermissionsAsync();
+        const location_status = await Permissions.askAsync(Permissions.LOCATION);
         this.setState(state => ({
-            hasPermission: status.granted
+            hasPermission: camera_status.granted && location_status.granted
         }));
+        console.log(this.state);
+    }
+
+    setLocationAndSend() {
+        console.log(this.state);
+        if(this.state.hasPermission) {
+            this.props.navigation.navigate("Prices", {imageTaken: true});
+            navigator.geolocation.getCurrentPosition((loc) => {
+                    this.setState(state => ({
+                        location: {
+                            latitude: loc.coords.latitude,
+                            longitude: loc.coords.longitude
+                        }
+                    }));
+                    // this.sendImage();
+                    console.log("send");
+                },
+                (err) => {
+                    console.error(err);
+                });
+        }
     }
 
     async takeImage() {
         if (this.camera && this.state.hasPermission) {
-            let image = await this.camera.takePictureAsync({base64: true, exif: true});
+            // this.setLocation();
+            let image = await this.camera.takePictureAsync({base64: false, exif: false});
             this.setState(state => ({
                 image: image
             }));
+            // console.log(this.state);
             this.toggleCamera();
         }
     }
@@ -53,7 +82,7 @@ export default class CameraComponent extends React.Component {
             let formdata = new FormData();
             formdata.append("img", { uri: this.state.image.uri, type: "image/jpeg", name: "img.jpeg" });
 
-            let res = await fetch("https://fuelprice-server.azurewebsites.net/upload/image", {
+            let res = await fetch("https://fuelpriceapi.azurewebsites.net/upload/image", {
                 method: "POST",
                 headers: {
                     "Content-Type": "multipart/form-data"
@@ -97,7 +126,7 @@ export default class CameraComponent extends React.Component {
                                 name={"md-send"}
                                 size={50}
                                 color={"white"}
-                                onPress={this.sendImage}
+                                onPress={this.setLocationAndSend}
                             />
                         </View>
                     </ImageBackground>
