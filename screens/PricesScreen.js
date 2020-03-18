@@ -12,12 +12,13 @@ export default class PricesScreen extends React.Component {
 
     async fetchGasData() {
         try  {
-            let result = await fetch("http://fuelprice-server.azurewebsites.net/prices/trondelag");
+            let result = await fetch("http://fuelpriceapi.azurewebsites.net/prices/trondelag");
             result = await result.json();
             this.setState(state => ({
                 gasData: result,
                 loading: false
-            }))
+            }));
+            this.props.navigation.setParams({gasData: result});
         } catch(e) {
 
         }
