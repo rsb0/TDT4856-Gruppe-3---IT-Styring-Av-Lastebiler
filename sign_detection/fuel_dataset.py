@@ -1,6 +1,7 @@
 import os
 import torch
 import torch.utils.data
+from torch import nn
 import torchvision
 from torchvision import transforms
 from engine import train_one_epoch, evaluate
@@ -132,7 +133,7 @@ def train_func():
                                                    gamma=0.1)
 
     # let's train it for 10 epochs
-    num_epochs = 4
+    num_epochs = 3
 
     for epoch in range(num_epochs):
         # train for one epoch, printing every 10 iterations
@@ -143,6 +144,105 @@ def train_func():
         evaluate(model, data_loader_test, device=device)
 
     print("That's it!")
+
+    torch.save(model, 'model_output/fuel_detector.pt')
+
+    print('Has saved model.')
+
+
+# NOT IN USE ---  NOT WORKING
+def train_object_detector(epochs=4, num_classes=2):
+    # train on the GPU or on the CPU, if a GPU is not available
+    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+
+    # use custom dataset and defined transformations
+    dataset = fuelDataset(
+        root='data/images', annotations='coco/output.json', transforms=get_transform(train=False)
+    )
+    dataset_test = fuelDataset(
+        root='data/images', annotations='coco/output.json', transforms=get_transform(train=False)
+    )
+
+    print('Number of images in training set: ', len(dataset))
+
+    # split the dataset in train and test set
+    indices = torch.randperm(len(dataset)).tolist()
+    dataset = torch.utils.data.Subset(dataset, indices[:-5])
+    dataset_test = torch.utils.data.Subset(dataset_test, indices[-5:])
+
+    # define training and validation data loaders
+    data_loader = torch.utils.data.DataLoader(
+        dataset, batch_size=2, shuffle=True, num_workers=0, collate_fn=collate_fn_custom
+    )
+    print('Has loaded training data.')
+
+    data_loader_test = torch.utils.data.DataLoader(
+        dataset_test, batch_size=1, shuffle=True, num_workers=0, collate_fn=collate_fn_custom
+    )
+    print('Has loaded testing data.')
+
+    model = get_model_instance_detection(num_classes)
+    model.to(device)
+
+    params = [p for p in model.parameters() if p.requires_grad]
+    optimizer = torch.optim.SGD(params, lr=0.005, momentum=0.9, weight_decay=0.0005)
+    criterion = nn.CrossEntropyLoss()
+
+    steps = 0
+    running_loss = 0
+    print_every = 10
+    train_losses, test_losses = [], []
+
+    for epoch in range(epochs):
+        for inputs, labels in data_loader:
+            steps += 1
+            # inputs, labels = inputs.to(device), labels.to(device)
+
+            optimizer.zero_grad()
+
+            logits = model.forward(inputs)
+            loss = criterion(logits, labels)
+            loss.backward()
+            optimizer.step()
+
+            running_loss += loss.item()
+
+            if steps % print_every == 0:
+                test_loss = 0
+                accuracy = 0
+                model.eval()
+
+                with torch.no_grad():
+                    for test_inputs, test_labels in data_loader_test:
+                        test_inputs, test_labels = test_inputs.to(device), test_labels.to(device)
+
+                        test_logits = model.forward(test_inputs)
+                        batch_loss = criterion(test_logits, test_labels)
+                        test_loss += batch_loss.item()
+
+                        ps = torch.exp(test_logits)
+                        _, top_class = ps.topk(1, dim=1)
+                        equals = top_class == labels.view(*top_class.shape)
+
+                        accuracy += torch.mean(equals.type(torch.floatTensor).item())
+
+                        train_losses.append(running_loss / len(data_loader))
+                        test_losses.append(test_loss / len(data_loader_test))
+
+                        print(f'Epoch {epoch + 1} / {epochs}')
+                        print(f'Train loss: {running_loss / print_every:.3f}')
+                        print(f'Test loss: {test_loss / len(data_loader_test):.3f}')
+                        print(f'Test accuracy: {accuracy / len(data_loader_test):.3f}')
+
+                        running_loss = 0
+                        model.train()
+
+        # torch.save(model, 'obj_det1.pth')
+        torch.save(model, 'model_output/fuel_detector.pt')
+
+
+def detect_fuel_station(image):
+    return
 
 
 if __name__ == "__main__":
@@ -202,4 +302,30 @@ if __name__ == "__main__":
     x = [torch.rand(3, 300, 400), torch.rand(3, 500, 400)]
     predictions = model(x)           # Returns predictions
     """
-    train_func()
+    
+    # train_func()
+
+    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+
+    my_model = torch.load('model_output/fuel_detector.pt')
+    my_model.eval()
+
+    # print(my_model)
+
+    img = Image.open(os.path.join('data/images', '4.png')).convert('RGB')
+
+    transforms = get_transform(train=False)
+
+    img = transforms(img)
+
+    img = img.to(device)
+    img = img.unsqueeze(1).float()
+
+    detections = 0
+
+    with torch.no_grad():
+        detections = my_model(img)
+
+    print(detections)
+
+    # train_object_detector()
