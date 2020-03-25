@@ -1,9 +1,9 @@
 import React from 'react';
-import {StyleShseet, Text, View, TouchableOpacity, ImageBackground, Dimensions, Button, StyleSheet} from 'react-native';
+import { View, TouchableOpacity, ImageBackground, Dimensions } from 'react-native';
 import { Camera } from 'expo-camera';
 import { NavigationEvents } from "react-navigation";
+import * as Location from "expo-location"
 import { Ionicons } from '@expo/vector-icons';
-import Colors from "../constants/Colors";
 import * as Permissions from "expo-permissions";
 
 export default class CameraComponent extends React.Component {
@@ -13,53 +13,65 @@ export default class CameraComponent extends React.Component {
             hasPermission: false,
             cameraType: Camera.Constants.Type.back,
             openCamera: true,
+            image: null,
+            hasLocation: false,
             location: {
                 latitude: null,
                 longitude: null
-            }
+            },
+            errorMessage: ""
         };
         this.toggleCamera = this.toggleCamera.bind(this);
         this.retakeImage = this.retakeImage.bind(this);
-        this.setLocationAndSend = this.setLocationAndSend.bind(this);
+        this.getLocation = this.getLocation.bind(this);
+        this.sendImage = this.sendImage.bind(this);
     }
 
     async componentDidMount() {
-        const camera_status = await Camera.requestPermissionsAsync();
-        const location_status = await Permissions.askAsync(Permissions.LOCATION);
-        this.setState(state => ({
-            hasPermission: camera_status.granted && location_status.granted
-        }));
-        console.log(this.state);
+        await this.getPermissions();
+        await this.getLocation();
+        this.listener = this.props.navigation.addListener('willFocus', this.getLocation);
     }
 
-    setLocationAndSend() {
-        console.log(this.state);
+    componentWillUnmount() {
+        this.listener.remove();
+    }
+
+    async getPermissions() {
+        const camera_status = await Camera.requestPermissionsAsync();
+        const location_status = await Permissions.askAsync(Permissions.LOCATION);
+        let errorMessage = "";
+        if (camera_status.granted !== "granted" || location_status.granted !== "granted")
+            errorMessage = "Permissions denied";
+        this.setState(state => ({
+            hasPermission: camera_status.granted && location_status.granted,
+            errorMessage: errorMessage
+        }));
+    }
+
+    async getLocation() {
+        console.log("loc");
         if(this.state.hasPermission) {
-            this.props.navigation.navigate("Prices", {imageTaken: true});
-            navigator.geolocation.getCurrentPosition((loc) => {
-                    this.setState(state => ({
-                        location: {
-                            latitude: loc.coords.latitude,
-                            longitude: loc.coords.longitude
-                        }
-                    }));
-                    // this.sendImage();
-                    console.log("send");
-                },
-                (err) => {
-                    console.error(err);
-                });
+            let location = await Location.getCurrentPositionAsync({});
+            let errorMessage = "";
+            if (location.coords.latitude === null || location.coords.longitude === null) {
+                errorMessage = "Could not get location";
+            }
+            this.setState(state => ({
+                location: location.coords,
+                hasLocation: true,
+                errorMessage: errorMessage
+            }));
+            console.log(this.state);
         }
     }
 
     async takeImage() {
         if (this.camera && this.state.hasPermission) {
-            // this.setLocation();
-            let image = await this.camera.takePictureAsync({base64: false, exif: false});
+            let image = await this.camera.takePictureAsync({base64: true, exif: false});
             this.setState(state => ({
                 image: image
             }));
-            // console.log(this.state);
             this.toggleCamera();
         }
     }
@@ -78,27 +90,33 @@ export default class CameraComponent extends React.Component {
     }
 
     async sendImage() {
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+
+        let location = this.state.location.latitude + "," + this.state.location.longitude;
+        var raw = JSON.stringify({"image": this.state.image.base64,"location": location});
+
+        var requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+        };
+
         try {
-            let formdata = new FormData();
-            formdata.append("img", { uri: this.state.image.uri, type: "image/jpeg", name: "img.jpeg" });
-
-            let res = await fetch("https://fuelpriceapi.azurewebsites.net/upload/image", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "multipart/form-data"
-                },
-                body: formdata
-            });
+            let res = await fetch("https://fuelpriceapi.azurewebsites.net/upload/image", requestOptions);
             res = await res.text();
-            console.log(res);
-
             this.setState(state => ({
                 image: null,
                 openCamera: false,
             }));
             this.props.navigation.navigate("Prices", {imageTaken: true});
-        } catch (e) {
+        } catch(e) {
             console.log(e);
+            this.setState(state => ({
+                errorMessage: "Could not upload image."
+            }))
         }
     }
 
@@ -126,7 +144,7 @@ export default class CameraComponent extends React.Component {
                                 name={"md-send"}
                                 size={50}
                                 color={"white"}
-                                onPress={this.setLocationAndSend}
+                                onPress={this.sendImage}
                             />
                         </View>
                     </ImageBackground>
@@ -174,9 +192,3 @@ export default class CameraComponent extends React.Component {
         }
     }
 }
-
-const styles = StyleSheet.create({
-    imageButton: {
-        flex: 1
-    },
-});
