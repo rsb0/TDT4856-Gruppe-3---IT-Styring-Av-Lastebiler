@@ -43,8 +43,12 @@ export default class MapScreen extends React.Component {
 
         if(fuelPrices.length > 0) {
             fuelPrices.forEach(price => {
-                price.latitude = parseFloat(price.location.split(",")[0].trim());
-                price.longitude = parseFloat(price.location.split(",")[1].trim());
+                if (price.location.includes("undefined")) {
+                    fuelPrices.splice(fuelPrices.indexOf(price), 1)
+                } else {
+                    price.latitude = parseFloat(price.location.split(",")[0].trim());
+                    price.longitude = parseFloat(price.location.split(",")[1].trim());
+                }
             });
             clusters = [ [fuelPrices.pop()] ];
         } else {
