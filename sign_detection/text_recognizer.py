@@ -1,9 +1,16 @@
 import numpy as np
 import pytesseract
-import argparse
+# import argparse
 import cv2
 from imutils.object_detection import non_max_suppression
 from PIL import Image
+
+
+default_min_conf = 0.5
+default_width = 1280
+default_heigt = 800
+default_px = 0.05
+default_py = 0.05
 
 
 def decode_predictions(scores, geometry):
@@ -20,7 +27,7 @@ def decode_predictions(scores, geometry):
         anglesData = geometry[0, 4, y]
 
         for x in range(numCols):
-            if scoresData[x] < args['min_confidence']:
+            if scoresData[x] < default_min_conf:
                 continue
 
             (offsetX, offsetY) = (x * 4.0, y * 4.0)
@@ -44,9 +51,6 @@ def decode_predictions(scores, geometry):
             confidences.append(scoresData[x])
 
     return (rects, confidences)
-
-default_width = 1280
-default_heigt = 800
 
 
 def recognize_text(image_path, east_path):
@@ -91,8 +95,8 @@ def recognize_text(image_path, east_path):
         endX = int(endX * rW)
         endY = int(endY * rH)
 
-        dX = int((endX - startX) * args["padding_x"])
-        dY = int((endY - startY) * args["padding_y"])
+        dX = int((endX - startX) * default_px)
+        dY = int((endY - startY) * default_py)
 
         startX = max(0, startX - dX)
         startY = max(0, startY - dY)
@@ -114,3 +118,24 @@ def recognize_text(image_path, east_path):
 
         # _, roi_inv = cv2.threshold(roi, 0, 250, cv2.THRESH_BINARY_INV)
         _, roi = cv2.threshold(roi, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+
+        print('Showing ROI!')
+        cv2.imshow("ROI ", roi)
+        cv2.waitKey(0)
+
+        text = 'EYEY!'
+
+        results.append(((startX, startY, endX, endY), text))
+
+
+    results = sorted(results, key=lambda r:r[0][1])
+
+    for ((startX, startY, endX, endY), text) in results:
+	    print("========")
+	    print("{}".format(text))
+
+    return
+
+
+if __name__ == "__main__":
+    recognize_text('data/12.png', 'frozen_east_text_detection.pb')

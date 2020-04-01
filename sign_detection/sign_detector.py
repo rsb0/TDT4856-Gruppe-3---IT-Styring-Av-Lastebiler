@@ -10,6 +10,8 @@ from PIL import Image, ImageDraw #, ImageFont
 from pycocotools.coco import COCO
 
 from utils_custom import get_transform, collate_fn_custom, get_model_instance_detection
+from text_recognizer import recognize_text
+
 
 data_dir = 'data/images'
 coco_dir = 'coco/output.json'
@@ -82,6 +84,7 @@ class fuelDataset(torch.utils.data.Dataset):
 
         if self.transforms is not None:
             img = self.transforms(img)
+            # img = self.transforms(img, target)
 
         return img, target
 
@@ -181,8 +184,8 @@ def detect_fuel_station(image_path):
     # orig_img = img.copy()
 
     # Extract and apply transforms in order to match model image format
-    transforms = get_transform(train=False)
-    img = transforms(img)
+    transformations = get_transform(train=False)
+    img = transformations(img)
 
     img = img.to(device)
     img = img.unsqueeze(1).float()
@@ -235,7 +238,7 @@ if __name__ == "__main__":
 
     # EXAMPLE INFERENCE
     example_image = 'data/11.png'
-    example_save_name = '11_test.png'
+    example_save_name = '11_test_2.png'
 
     print(f'Prediction location of sign in {example_image}. \n')
 
@@ -247,5 +250,10 @@ if __name__ == "__main__":
     x1, y1, x2, y2 = box
 
     img_cropped = img.crop((x1, y1, x2, y2))
+    img_cropped.save('crop_boi.png')
 
-    img_cropped.show()
+    # img_cropped.show()
+
+    # recognize_text('crop_boi.png', 'frozen_east_detection.pb')
+
+    ##################
