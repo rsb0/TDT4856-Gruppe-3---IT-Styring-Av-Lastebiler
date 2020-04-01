@@ -7,8 +7,8 @@ from PIL import Image
 
 
 default_min_conf = 0.5
-default_width = 1280
-default_heigt = 800
+default_width = 320 # 1280
+default_heigt = 320 # 800
 default_px = 0.05
 default_py = 0.05
 
@@ -53,10 +53,41 @@ def decode_predictions(scores, geometry):
     return (rects, confidences)
 
 
-def recognize_text(image_path, east_path):
+def image_preprocessing(image):
+    image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-    image = cv2.imread(image_path)
+    # Color boundaries in BGR format
+    lower_red = [110, 90, 150] # 80, 45, 180
+    upper_red = [175, 180, 255] # 150, 150, 255
+
+    lower_red_hsv = [0, 65, 72]
+    upper_red_hsv = [9, 53, 100]
+
+    lower = np.array(lower_red, dtype=np.uint8)
+    upper = np.array(upper_red, dtype=np.uint8)
+    mask = cv2.inRange(image, lower, upper)
+
+    masked = cv2.bitwise_and(image, image, mask=mask)
+
+    altered = cv2.cvtColor(masked, cv2.COLOR_BGR2GRAY)
+    altered = cv2.GaussianBlur(altered, (3, 3), 0)
+
+    _kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
+    altered = cv2.erode(altered, _kernel, iterations=2)
+
+    out_image = cv2.cvtColor(altered, cv2.COLOR_GRAY2BGR)
+
+    return out_image
+
+
+def recognize_text(image_in, east_path):
+
+    # image = cv2.imread(image_path)
+    image = image_in
     orig = image.copy()
+
+    image = image_preprocessing(image)
+    # print('EYOO! ', image.shape)
 
     (origH, origW) = image.shape[:2]
 
@@ -73,7 +104,7 @@ def recognize_text(image_path, east_path):
         "feature_fusion/concat_3"
     ]
 
-    print('[INFO] Loading EAST text detector...')
+    print('Loading EAST text detector...')
     net = cv2.dnn.readNet(east_path)
 
     # Construct a blob and perform a forward pass on EAST net
@@ -119,24 +150,30 @@ def recognize_text(image_path, east_path):
         # _, roi_inv = cv2.threshold(roi, 0, 250, cv2.THRESH_BINARY_INV)
         _, roi = cv2.threshold(roi, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
-        print('Showing ROI!')
-        cv2.imshow("ROI ", roi)
-        cv2.waitKey(0)
+        # print('Showing ROI!')
+        # cv2.imshow("ROI ", roi)
+        # cv2.waitKey(0)
 
-        text = 'EYEY!'
+        # apply tesseract 4 to OCR
+        configs = ("-l eng --oem 1 --psm 7 load_system_dawg=false load_freq_dawg=false tessedit_char_whitelist=.0123456789 outputbase digits")
+        # configs = ("--oem 1 --psm 7 tessedit_char_whitelist=.0123456789")
+        text = pytesseract.image_to_string(roi, lang='eng', config=configs)
 
         results.append(((startX, startY, endX, endY), text))
 
 
     results = sorted(results, key=lambda r:r[0][1])
 
-    for ((startX, startY, endX, endY), text) in results:
-	    print("========")
-	    print("{}".format(text))
+    # for ((startX, startY, endX, endY), text) in results:
+	#     print("========")
+	#     print("{}".format(text))
 
-    return
+    print(f'Most most confident prediciton: {results[0]}')
+
+    return results[0][1]
 
 
 if __name__ == "__main__":
-    pass
-    #recognize_text('data/12.png', 'frozen_east_text_detection.pb')
+
+    test_image = cv2.imread('crop_boi_3.png')
+    eyy = recognize_text(test_image, 'frozen_east_text_detection.pb')

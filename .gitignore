@@ -19,8 +19,10 @@ __pycache__/
 # images and annotations
 data/
 image_labeling/
+images/
 prediction_output/
 model_output/
+gasprice_images/
 
 # Distribution / packaging
 .Python

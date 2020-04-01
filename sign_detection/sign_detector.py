@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import cv2
 import torch
 import torch.utils.data
 from torch import nn
@@ -16,8 +17,11 @@ from text_recognizer import recognize_text
 data_dir = 'data/images'
 coco_dir = 'coco/output.json'
 
-model_output = 'model_output/fuel_sign_model.pt'
+
+model_output = 'model_output/fuel_sign_model.pt' # 'model_output/fuel_detector_2.pt'
 prediction_save_path = 'prediction_output'
+
+east_text_path = 'frozen_east_text_detection.pb'
 
 test_fraction = 0.5
 
@@ -157,9 +161,9 @@ def train():
     print(' \n ######## Finished training! ########')
 
     # torch.save(model, 'model_output/fuel_detector_2.pt')
-    torch.save(model, model_output_dir)
+    torch.save(model, model_output)
 
-    print(f'Has saved model at {model_output_dir}')
+    print(f'Has saved model at {model_output}')
 
 
 def detect_fuel_station(image_path):
@@ -175,6 +179,8 @@ def detect_fuel_station(image_path):
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     
     model = torch.load(model_output)
+
+    print(f'Loading model from {model_output}')
 
     # Neccessary in order to initialize all batch normalizations and ...
     model.eval()
@@ -196,12 +202,18 @@ def detect_fuel_station(image_path):
 
     # TODO: implement non-maximum supression of infered predictions ???
 
-    detection = detections[0]
-    print(detections)
-    
-    box = detection['boxes'].tolist()[0]
-    label = int(detection['labels'].tolist()[0])
 
+
+    box, label = None, None
+    
+    try:
+        detection = detections[0]
+        box = detection['boxes'].tolist()[0]
+        label = int(detection['labels'].tolist()[0])
+    except:
+        print(f'No valid predictions for image from {image_path}')
+    finally:
+        pass
     return (box, label)
 
 
@@ -231,15 +243,52 @@ def draw_prediction(box, image_path, save_path=None, save_name=None):
     img.show()
 
 
+def detect_fuel_price_from_image(image_path):
+    """
+    Detects fuel price.
+    
+    Returns:
+        string denoting price.
+        TODO: Process price result, maybe check if int/float...
+
+    """
+
+    box, _ = detect_fuel_station(image_path)
+
+    if not box:
+        return None
+
+    x1, y1, x2, y2 = box
+    x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+
+    image = cv2.imread(image_path)
+
+    image_cropped = image[y1:y2, x1:x2]
+    # cv2.imwrite('crop_boi_3.png', image_cropped)
+
+    # cv2.imshow("CROP! ", image_cropped)
+    # cv2.waitKey(0)
+
+    # image_u = cv2.imread('crop_boi_3.png')
+
+    price_result = recognize_text(image_cropped, east_text_path)
+
+    return price_result
+
+
 if __name__ == "__main__":
 
-    # UNCOMMENT IF TRAINING NEW NETWORK
+    # NOTE: UNCOMMENT train() IF TRAINING NEW NETWORK
     # CHANGE global variable 'model_output_dir' TO WRITE TO NEW MODEL
+    
     # train()
 
-    # EXAMPLE INFERENCE
-    example_image = 'data/testimage/1.png'
-    example_save_name = '1_test.png'
+
+    """
+
+    ### EXAMPLE INFERENCE ###
+    example_image = 'data/images/2.png'
+    example_save_name = '2_test_1.png'
 
     print(f'Prediction location of sign in {example_image}. \n')
 
@@ -251,10 +300,16 @@ if __name__ == "__main__":
     x1, y1, x2, y2 = box
 
     img_cropped = img.crop((x1, y1, x2, y2))
-    img_cropped.save('crop_boi.png')
+    img_cropped.save('crop_boi_2.png')
 
     # img_cropped.show()
 
     # recognize_text('crop_boi.png', 'frozen_east_detection.pb')
 
-    ##################
+    ### END OF EXAMPLE ###
+
+    """
+
+    price_result = detect_fuel_price_from_image('data/13.png')
+
+    print('Fuel price: ', price_result)
