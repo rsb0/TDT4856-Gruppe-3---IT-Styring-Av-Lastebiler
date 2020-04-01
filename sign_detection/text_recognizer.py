@@ -138,4 +138,5 @@ def recognize_text(image_path, east_path):
 
 
 if __name__ == "__main__":
-    recognize_text('data/12.png', 'frozen_east_text_detection.pb')
+    pass
+    #recognize_text('data/12.png', 'frozen_east_text_detection.pb')

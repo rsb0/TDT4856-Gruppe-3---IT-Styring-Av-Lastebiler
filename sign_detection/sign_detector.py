@@ -16,7 +16,7 @@ from text_recognizer import recognize_text
 data_dir = 'data/images'
 coco_dir = 'coco/output.json'
 
-model_output_dir = 'model_output/fuel_detector_2.pt'
+model_output = 'model_output/fuel_sign_model.pt'
 prediction_save_path = 'prediction_output'
 
 test_fraction = 0.5
@@ -174,7 +174,7 @@ def detect_fuel_station(image_path):
     """
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     
-    model = torch.load(model_output_dir)
+    model = torch.load(model_output)
 
     # Neccessary in order to initialize all batch normalizations and ...
     model.eval()
@@ -197,6 +197,7 @@ def detect_fuel_station(image_path):
     # TODO: implement non-maximum supression of infered predictions ???
 
     detection = detections[0]
+    print(detections)
     
     box = detection['boxes'].tolist()[0]
     label = int(detection['labels'].tolist()[0])
@@ -237,8 +238,8 @@ if __name__ == "__main__":
     # train()
 
     # EXAMPLE INFERENCE
-    example_image = 'data/11.png'
-    example_save_name = '11_test_2.png'
+    example_image = 'data/testimage/1.png'
+    example_save_name = '1_test.png'
 
     print(f'Prediction location of sign in {example_image}. \n')
 
