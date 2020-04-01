@@ -5,7 +5,7 @@ import cv2
 
 from PIL import Image
 
-image = cv2.imread('images/two.png')
+image = cv2.imread('images/crop3.png')
 orig = image.copy()
 
 image_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)

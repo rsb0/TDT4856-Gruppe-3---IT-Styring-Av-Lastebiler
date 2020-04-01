@@ -17,7 +17,7 @@ DIGITS_LOOKUP = {
 }
 
 # read image from file
-img = cv2.imread("images/one.png")
+img = cv2.imread("images/crop3.png")
 
 # pre process image by converting to greyscale and computing an edge map
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -82,43 +82,8 @@ for c in cnts:
 		digitCnts.append(c)
 
 digitCnts = contours.sort_contours(digitCnts, method="left-to-right")[0]
-digits = []
-
-# loop over each digit-contour
-for c in digitCnts:
-	# extract the digit ROI
-	(x, y, w, h) = cv2.boundingRect(c)
-	roi = thresh[y:y + h, x:x + w]
-
-	# compute the width and height off each 7 segmet to be examined
-	(roiH, roiW) = roi.shape
-	(dW, dH) = (int(roiW * 0.25), int(roiH * 0.15))
-	dHC = int(roiH * 0.05)
-
-	cv2.imshow("roi", roi)
-	cv2.waitKey(0)
-
-	# define the set of 7 segments
-	segments = [
-		((0, 0), (w, dH)), # top
-		((0, 0), (dW, h // 2)),  # top-left
-		((w - dW, 0), (w, h // 2)),  # top-right
-		((0, (h // 2) - dHC), (w, (h // 2) + dHC)),  # center
-		((0, h // 2), (dW, h)),  # bottom-left
-		((w - dW, h // 2), (w, h)),  # bottom-right
-		((0, h - dH), (w, h))  # bottom
-	]
-	on = [0] * len(segments)
-
-cv2.imshow("image", reshaped)
-cv2.waitKey(0)
 
 
-cv2.imshow("grey", grey)
-cv2.waitKey(0)
-
-cv2.imshow("thresh", thresh)
-cv2.waitKey(0)
 
 
 cv2.destroyAllWindows()

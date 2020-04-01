@@ -238,7 +238,7 @@ if __name__ == "__main__":
     # train()
 
     # EXAMPLE INFERENCE
-    example_image = 'data/testimage/1.png'
+    example_image = 'data/testimage/3.png'
     example_save_name = '1_test.png'
 
     print(f'Prediction location of sign in {example_image}. \n')
@@ -251,9 +251,9 @@ if __name__ == "__main__":
     x1, y1, x2, y2 = box
 
     img_cropped = img.crop((x1, y1, x2, y2))
-    img_cropped.save('crop_boi.png')
+    img_cropped.save('crop3.png')
 
-    # img_cropped.show()
+    img_cropped.show()
 
     # recognize_text('crop_boi.png', 'frozen_east_detection.pb')
 
