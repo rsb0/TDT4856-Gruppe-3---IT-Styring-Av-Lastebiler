@@ -307,4 +307,4 @@ if __name__ == "__main__":
 
     price_result = detect_fuel_price_from_image('data/13.png')
 
-    print('Fuel price: ', price_result)
+    print('Fuel priceerer: ', price_result)
