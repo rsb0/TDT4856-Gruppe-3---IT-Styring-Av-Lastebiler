@@ -4,7 +4,33 @@
 
 The main goal of this project is to use computer vision systems to detect fuel prices from local fuel stations. In order to succeed with this project the group will develop an application which will be enable the user to take pictures of price signs and list fuel prices. 
 ## Mobile application
-TODO: Write necessary setup and prerequisites for the mobile app here.
+Take pictures and show price information to the users.
+
+### Downloading the app
+The app is available as a downloadable apk-file for android phones. It is unfortunately not available for iPhone. To download, [open this link](https://exp-shell-app-assets.s3.us-west-1.amazonaws.com/android/%40satsebil/Gassy-20a4e7d3f893411e9c363317a8f30a0d-signed.apk) on your phone. When completed, open the file to install the app.
+
+### Running the application locally
+
+### Prerequisites
+- [Nodejs](https://nodejs.org/en/download/)
+- [React native with Expo](https://reactnative.dev/docs/environment-setup)
+  ```shell
+  npm install -g expo-cli
+  ```
+- Expo [android](https://play.google.com/store/apps/details?id=host.exp.exponent&referrer=www) or [iOS](https://itunes.apple.com/app/apple-store/id982107779) app on your phone
+
+### Setup
+1. Navigate to the root folder of the project in your terminal.
+2. Install all dependencies.
+   ```shell
+   npm install
+   ```
+3. start the development server
+   ```shell
+   npm start
+   ```
+4. Scan the QR-code printed when the server starts using the Expo app on your phone.
+5. Open the project code in a text editor or IDE to make changes and see their effect in real time on your phone.
 
 ## Backend
 Process pictures and stores fuel price related information.
